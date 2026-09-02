@@ -13,11 +13,12 @@ import {
   Zap,
   Sparkles,
   Plus,
-  RefreshCw
+  RefreshCw,
+  ShieldCheck
 } from 'lucide-react';
 
 export const DigitalWallet: React.FC = () => {
-  const { tickets, walletBalance, topupWallet, buyTicket } = useApp();
+  const { tickets, walletBalance, buyTicket, openPaymentModal } = useApp();
   const [nfcTapped, setNfcTapped] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<DigitalTicket | null>(tickets[0] || null);
 
@@ -51,10 +52,11 @@ export const DigitalWallet: React.FC = () => {
               <div className="text-base font-extrabold text-white font-mono">${walletBalance.toFixed(2)}</div>
             </div>
             <button
-              onClick={() => topupWallet(20)}
-              className="px-2.5 py-1 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shadow-glow-cyan"
+              onClick={() => openPaymentModal(20)}
+              className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-extrabold text-xs shadow-glow-cyan transition-all flex items-center gap-1.5"
             >
-              + $20
+              <Plus className="w-3.5 h-3.5" />
+              <span>Add Funds</span>
             </button>
           </div>
         </div>
@@ -213,7 +215,6 @@ export const DigitalWallet: React.FC = () => {
         </div>
 
       </div>
-
     </div>
   );
 };

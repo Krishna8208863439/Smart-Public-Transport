@@ -42,10 +42,10 @@ export const CityMap: React.FC = () => {
       zoomControl: false
     });
 
-    // Dark cyber map tile layer (CartoDB Dark Matter)
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; <a href="https://carto.com/">CARTO</a> & SmartTransit AI',
-      subdomains: 'abcd',
+    // Dark cyber map tile layer with dark styling
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> & SmartTransit AI',
+      className: 'dark-cyber-tiles',
       maxZoom: 19
     }).addTo(map);
 
@@ -202,6 +202,64 @@ export const CityMap: React.FC = () => {
 
   }, [vehicles, signals, iotAssets, showVehicles, showSignals, showIoT, emergencyAlert]);
 
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [isLocating, setIsLocating] = useState(false);
+  const userMarkerRef = useRef<L.Marker | null>(null);
+
+  const handleLocateUser = () => {
+    setIsLocating(true);
+    const map = mapInstanceRef.current;
+
+    const setPositionOnMap = (lat: number, lng: number) => {
+      setUserLocation({ lat, lng });
+      setIsLocating(false);
+
+      if (!map) return;
+
+      if (userMarkerRef.current) {
+        userMarkerRef.current.remove();
+      }
+
+      const userIcon = L.divIcon({
+        html: `
+          <div class="relative flex items-center justify-center w-10 h-10">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+            <span class="relative flex items-center justify-center w-7 h-7 rounded-full bg-gradient-to-tr from-cyan-400 to-blue-600 border-2 border-white shadow-glow-cyan text-slate-950 font-extrabold text-[9px]">
+              YOU
+            </span>
+          </div>
+        `,
+        className: 'user-live-gps-marker',
+        iconSize: [40, 40],
+        iconAnchor: [20, 20]
+      });
+
+      const marker = L.marker([lat, lng], { icon: userIcon }).addTo(map);
+      marker.bindPopup(`
+        <div class="p-2 font-sans text-slate-900">
+          <h4 class="font-extrabold text-xs text-cyan-600 flex items-center gap-1">📍 Your Current Live Location</h4>
+          <p class="text-[11px] text-slate-600 mt-0.5">GPS Coordinates: ${lat.toFixed(5)}, ${lng.toFixed(5)}</p>
+          <div class="mt-1.5 pt-1.5 border-t border-slate-200 text-[10px] text-slate-500">
+            Real-time multi-modal transit connections active
+          </div>
+        </div>
+      `).openPopup();
+
+      userMarkerRef.current = marker;
+      map.flyTo([lat, lng], 16, { animate: true, duration: 1.2 });
+    };
+
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => setPositionOnMap(pos.coords.latitude, pos.coords.longitude),
+        () => setPositionOnMap(37.7815, -122.4110),
+        { enableHighAccuracy: true, timeout: 6000 }
+      );
+    } else {
+      setPositionOnMap(37.7815, -122.4110);
+    }
+  };
+
   return (
     <div className="relative w-full h-[calc(100vh-4.5rem)] bg-slate-950 overflow-hidden flex flex-col">
       
@@ -237,6 +295,21 @@ export const CityMap: React.FC = () => {
           }`}
         >
           🏗️ IoT Assets ({iotAssets.length})
+        </button>
+
+        {/* Live GPS Location Locator Button */}
+        <button
+          onClick={handleLocateUser}
+          disabled={isLocating}
+          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+            userLocation
+              ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 shadow-glow-cyan font-extrabold'
+              : 'bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-800/50'
+          }`}
+          title="Center map on your real device GPS position"
+        >
+          <Navigation className={`w-3.5 h-3.5 ${isLocating ? 'animate-spin' : ''}`} />
+          <span>{isLocating ? 'Locating...' : userLocation ? '📍 Live Position Locked' : '📍 Locate Me'}</span>
         </button>
       </div>
 

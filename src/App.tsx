@@ -13,8 +13,11 @@ import { EcoAnalytics } from './components/Environmental/EcoAnalytics';
 import { EmergencyDispatcher } from './components/Emergency/EmergencyDispatcher';
 import { UrbanAICopilot } from './components/AICopilot/UrbanAICopilot';
 
+import { PaymentGatewayModal } from './components/Payment/PaymentGatewayModal';
+import { AuthPortal } from './components/Auth/AuthPortal';
+
 const MainContent: React.FC = () => {
-  const { activeTab } = useApp();
+  const { activeTab, userRole } = useApp();
 
   const renderActiveView = () => {
     switch (activeTab) {
@@ -39,7 +42,7 @@ const MainContent: React.FC = () => {
       case 'copilot':
         return <UrbanAICopilot />;
       default:
-        return <ExecutiveDashboard />;
+        return userRole === 'citizen' ? <JourneyPlanner /> : <ExecutiveDashboard />;
     }
   };
 
@@ -50,16 +53,37 @@ const MainContent: React.FC = () => {
   );
 };
 
+const AppContainer: React.FC = () => {
+  const { currentUser, isPaymentModalOpen, closePaymentModal, paymentModalDefaultAmount } = useApp();
+
+  // If user is not logged in, render AuthPortal first!
+  if (!currentUser) {
+    return <AuthPortal />;
+  }
+
+  // Only after login are the platform features displayed!
+  return (
+    <div className="min-h-screen flex flex-col bg-[#090D16] text-slate-100 font-sans animate-in fade-in duration-300">
+      <Header />
+      <div className="flex flex-1 flex-col md:flex-row overflow-hidden">
+        <Sidebar />
+        <MainContent />
+      </div>
+
+      {/* Global Top-Level Portal Payment Gateway Modal */}
+      <PaymentGatewayModal
+        isOpen={isPaymentModalOpen}
+        onClose={closePaymentModal}
+        defaultAmount={paymentModalDefaultAmount}
+      />
+    </div>
+  );
+};
+
 export function App() {
   return (
     <AppProvider>
-      <div className="min-h-screen flex flex-col bg-[#090D16] text-slate-100 font-sans">
-        <Header />
-        <div className="flex flex-1 flex-col md:flex-row overflow-hidden">
-          <Sidebar />
-          <MainContent />
-        </div>
-      </div>
+      <AppContainer />
     </AppProvider>
   );
 }

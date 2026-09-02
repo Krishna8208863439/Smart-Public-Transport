@@ -165,24 +165,42 @@ export const predictAssetFailure = (asset: IoTAsset) => {
   };
 };
 
-export const processAICopilotQuery = (query: string): string => {
+export const processAICopilotQuery = (
+  query: string,
+  liveContext?: {
+    vehiclesCount?: number;
+    aqi?: number;
+    co2Kg?: number;
+    activeWorkOrders?: number;
+    walletBalance?: number;
+    activeComplaints?: number;
+  }
+): string => {
   const q = query.toLowerCase();
+  const vCount = liveContext?.vehiclesCount ?? 5;
+  const aqiVal = liveContext?.aqi ?? 38;
+  const co2Val = liveContext?.co2Kg ? (liveContext.co2Kg / 1000).toFixed(1) : '14.3';
+  const woCount = liveContext?.activeWorkOrders ?? 1;
+  const walletBal = liveContext?.walletBalance !== undefined ? `$${liveContext.walletBalance.toFixed(2)}` : '$45.50';
 
-  if (q.includes('traffic') || q.includes('congestion')) {
-    return "⚡ **Traffic Optimization Report**: AI Signal Grid is operating at 94.2% efficiency. Junction A (Market St & 4th) has heavy flow; AI signal cycle timing increased green time to 45s to clear northbound queue. Overall city travel delays reduced by **28.5%** today.";
+  if (q.includes('traffic') || q.includes('congestion') || q.includes('signal')) {
+    return `⚡ **Traffic Optimization Report**: AI Signal Grid is operating at 94.2% efficiency. Junction A (Market St & 4th) has active adaptive flow; AI signal cycle timing dynamically balances green splits based on real-time vehicle density. Overall city travel delays reduced by **28.5%** today.`;
   }
-  if (q.includes('bus') || q.includes('metro') || q.includes('tracking') || q.includes('eta')) {
-    return "🚌 **Transit Fleet Live Status**: 5 active vehicles on grid. **BUS-402** is 2 mins from Central Plaza (89% Battery). **Blue Line Metro** is on schedule at 52 km/h. **BUS-509** is experiencing a 6-min delay due to Mission St lane congestion.";
+  if (q.includes('bus') || q.includes('metro') || q.includes('tracking') || q.includes('eta') || q.includes('fleet')) {
+    return `🚌 **Transit Fleet Live Status**: **${vCount} active transit vehicles** broadcasting live GPS telemetry on grid. **Route 101 E-Bus** is in transit with ~88% battery. **Blue Line Metro** is operating on schedule. Next arrivals updating in real-time across stops.`;
   }
-  if (q.includes('maintenance') || q.includes('bridge') || q.includes('iot') || q.includes('pothole')) {
-    return "🏗️ **Civic Infrastructure Alert**: Downtown Drainage Sensor #4 is flagged at **51% Failure Risk** (high moisture & vibration). Work Order #wo-901 has been dispatched to Hydro Squad A. Bay West Bridge is operating with normal structural strain (185 µε).";
+  if (q.includes('maintenance') || q.includes('bridge') || q.includes('iot') || q.includes('drainage') || q.includes('asset')) {
+    return `🏗️ **Civic Infrastructure Alert**: Monitoring 4 smart sensor assets in real-time. **${woCount} active work order** currently dispatched to municipal field units. Bay West Suspension Bridge strain is within safety parameters.`;
   }
-  if (q.includes('eco') || q.includes('air') || q.includes('aqi') || q.includes('carbon')) {
-    return "🌿 **Environmental Snapshot**: Current City AQI is **38 (Good)**. Total CO₂ offset today by electric bus fleet & solar stops is **14,250 kg**. Noise levels average 58 dB in commercial corridors.";
+  if (q.includes('eco') || q.includes('air') || q.includes('aqi') || q.includes('carbon') || q.includes('pollution')) {
+    return `🌿 **Environmental Snapshot**: Current City AQI is **${aqiVal} (Good)**. Total CO₂ offset today by electrified transit fleet is **${co2Val} tonnes**. Noise levels are within optimal quiet urban thresholds.`;
   }
-  if (q.includes('sos') || q.includes('emergency') || q.includes('ambulance')) {
-    return "🚨 **Emergency Priority Protocol**: SOS System is ready. Triggering Emergency Corridor forces AI signals on designated routes to turn Green, creating a clear wave for ambulances & fire response.";
+  if (q.includes('wallet') || q.includes('ticket') || q.includes('fare') || q.includes('balance')) {
+    return `💳 **Transit Wallet & Passes**: Your live digital transit balance is **${walletBal}**. You can top up anytime via Credit/Debit card, UPI QR, Apple Pay, Google Pay, or NetBanking, or purchase instant QR tickets in the Journey Planner.`;
+  }
+  if (q.includes('sos') || q.includes('emergency') || q.includes('ambulance') || q.includes('fire')) {
+    return `🚨 **Emergency Priority Protocol**: SOS System is ready. Triggering Emergency Priority Wave overrides AI signals on designated corridors to turn Green, establishing an unobstructed passage for emergency units.`;
   }
 
-  return `🤖 **SmartTransit AI Copilot**: I monitored your query regarding "${query}". The system is currently tracking live bus routes, AI traffic signal junctions, IoT bridge sensors, digital ticketing, and civic complaints. How can I assist your team further?`;
+  return `🤖 **SmartTransit AI Copilot**: I analyzed your request: "${query}". I am actively monitoring ${vCount} live fleet vehicles, real-time traffic signal cycles, IoT bridge stress sensors, current AQI (${aqiVal}), and digital ticketing. How can I assist your team further?`;
 };

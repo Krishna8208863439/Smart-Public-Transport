@@ -1,4 +1,16 @@
-export type UserRole = 'citizen' | 'operator' | 'traffic_police' | 'municipal' | 'bus_driver' | 'admin';
+export type UserRole = 'citizen' | 'operator' | 'admin' | 'maintenance' | 'super_admin';
+
+export interface AuthUser {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  roleTitle: string;
+  avatarUrl?: string;
+  department?: string;
+  phone?: string;
+  assignedFeatures: string[];
+}
 
 export type TransportType = 'bus' | 'metro' | 'ebus' | 'train' | 'ferry';
 

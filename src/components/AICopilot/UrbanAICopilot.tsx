@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import { useApp } from '../../context/AppContext';
 import { processAICopilotQuery } from '../../services/aiService';
-import { Bot, Send, Sparkles, User, Bus, Activity, Wrench, Leaf, ShieldAlert } from 'lucide-react';
+import { Bot, Send, Cpu, User, Bus, Activity, Wrench, Leaf, ShieldAlert } from 'lucide-react';
 
 interface ChatMessage {
   id: string;
@@ -10,6 +11,8 @@ interface ChatMessage {
 }
 
 export const UrbanAICopilot: React.FC = () => {
+  const { vehicles, environmental, workOrders, walletBalance, complaints } = useApp();
+
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 'msg-1',
@@ -38,7 +41,15 @@ export const UrbanAICopilot: React.FC = () => {
     setIsTyping(true);
 
     setTimeout(() => {
-      const aiResponseText = processAICopilotQuery(textToSend);
+      const aiResponseText = processAICopilotQuery(textToSend, {
+        vehiclesCount: vehicles.length,
+        aqi: environmental.aqi,
+        co2Kg: environmental.co2OffsetTodayKg,
+        activeWorkOrders: workOrders.filter((w) => w.status === 'in_progress').length,
+        walletBalance,
+        activeComplaints: complaints.length
+      });
+
       const aiMsg: ChatMessage = {
         id: `ai-${Date.now()}`,
         sender: 'ai',
@@ -47,7 +58,7 @@ export const UrbanAICopilot: React.FC = () => {
       };
       setMessages((prev) => [...prev, aiMsg]);
       setIsTyping(false);
-    }, 800);
+    }, 700);
   };
 
   const samplePrompts = [
@@ -72,8 +83,8 @@ export const UrbanAICopilot: React.FC = () => {
           </div>
         </div>
 
-        <span className="text-xs uppercase font-extrabold text-cyan-400 bg-cyan-950 px-2.5 py-1 rounded-full border border-cyan-800 flex items-center gap-1.5">
-          <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Gemini & GPT-4 Powered
+        <span className="text-xs uppercase font-extrabold text-cyan-400 bg-cyan-950 px-3 py-1.5 rounded-full border border-cyan-800 flex items-center gap-1.5">
+          <Cpu className="w-3.5 h-3.5 text-cyan-400" /> Real-Time Urban AI Active
         </span>
       </div>
 

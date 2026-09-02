@@ -231,50 +231,76 @@ export const PredictiveMaintenance: React.FC = () => {
 
       {/* Work Order Modal */}
       {showWoModal && selectedAsset && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-md shadow-2xl space-y-4">
-            <h3 className="text-lg font-bold text-white">Dispatch Work Order</h3>
-            <p className="text-xs text-slate-400">Target Asset: <strong>{selectedAsset.name}</strong></p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
+          <div className="bg-[#0F172A] border border-slate-700/80 rounded-3xl p-6 sm:p-7 w-full max-w-md shadow-2xl space-y-5 text-white relative overflow-hidden">
+            
+            {/* Ambient Corner Glow */}
+            <div className="absolute -top-20 -right-20 w-40 h-40 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none" />
 
-            <form onSubmit={handleCreateWO} className="space-y-4">
+            <div className="flex items-start justify-between relative z-10">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-2xl bg-emerald-950/80 border border-emerald-800 text-emerald-400 shadow-glow-green">
+                  <Wrench className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-extrabold text-white tracking-tight">
+                    Dispatch Maintenance Squad
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Target: <strong className="text-emerald-400">{selectedAsset.name}</strong>
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setShowWoModal(false)}
+                className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/80 transition-colors"
+                title="Close"
+              >
+                <ChevronRight className="w-5 h-5 rotate-90" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateWO} className="space-y-4 relative z-10">
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">Priority Level</label>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">Priority Level</label>
                 <select
                   value={woPriority}
                   onChange={(e) => setWoPriority(e.target.value as any)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
+                  className="w-full bg-slate-950/80 border border-slate-700/90 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-400"
                 >
-                  <option value="low">Low Priority</option>
-                  <option value="medium">Medium Priority</option>
-                  <option value="high">High Priority</option>
-                  <option value="critical">CRITICAL (Immediate Dispatch)</option>
+                  <option value="low">Low Priority (Routine Checkup)</option>
+                  <option value="medium">Medium Priority (Scheduled Inspection)</option>
+                  <option value="high">High Priority (Urgent Repair)</option>
+                  <option value="critical">CRITICAL (Immediate Dispatch Required)</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">Instructions for Repair Squad</label>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">Instructions for Repair Squad</label>
                 <textarea
                   rows={3}
                   value={woDesc}
                   onChange={(e) => setWoDesc(e.target.value)}
-                  placeholder="Specify inspection or component replacement instructions..."
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white"
+                  placeholder="Specify sensor telemetry warnings, part replacement, or diagnostic instructions..."
+                  className="w-full bg-slate-950/80 border border-slate-700/90 rounded-xl p-3.5 text-xs text-white focus:outline-none focus:border-emerald-400 placeholder-slate-600"
                 />
               </div>
 
-              <div className="flex gap-2 pt-2">
+              <div className="flex gap-2.5 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowWoModal(false)}
-                  className="flex-1 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold"
+                  className="flex-1 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-all border border-slate-700/60"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-2 rounded-xl bg-emerald-500 text-slate-950 text-xs font-extrabold shadow-glow-green"
+                  className="flex-1 py-3 rounded-2xl bg-gradient-to-r from-emerald-400 to-teal-500 hover:from-emerald-300 hover:to-teal-400 text-slate-950 text-xs font-extrabold shadow-glow-green transition-all flex items-center justify-center gap-1.5"
                 >
-                  Confirm Dispatch
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>Confirm Dispatch</span>
                 </button>
               </div>
             </form>
